@@ -4,11 +4,13 @@ from datetime import datetime
 from models.user import User
 from models.trips import Trips
 from models.admin import Admin
+from services.log_service import get_logger
 
 def admin_login():
     User.load_users()
     Trips.load_trips()
     Admin.load_admins()
+    logger = get_logger()
     username = input("Enter Admin username: ")
     password = input("Enter Admin password: ")
     admin_loggin = check_admin_sign_up(username, password)
@@ -17,6 +19,7 @@ def admin_login():
         print("Invalid Username or Password. Try again.")
         return
     while True:
+        logger.info("Admin Logged in")
         print(f"\n#=========================#\n#==== ADMIN DASHBOARD ====#\n#=========================#\n")
         run_admindashboard = input("1.Add Trip - 2.Remove Trip - 3.Edite Trip - 4.Show Venues - 5.Show All Users Data (Superuser Only)- 6.Back to Main Menu:")
 
@@ -39,8 +42,10 @@ def admin_login():
                     add_trips_db(trip_id, origin, destination, start_time, end_time, price, seats)
                     set_trip_state (trip_id,'available')
                     print("Trip added successfully")
+                    logger.info(f"Trip {trip_id} added by Admin")
             except ValueError as e:
                 print(f"{e} : Something goes wrong. Trip is not added.Try again.")
+                logger.error("Error happend in adding Trip by Admin")
 
         elif run_admindashboard == "2":  # Remove Trip by Admin
             for trip in Trips.trips:
@@ -53,6 +58,7 @@ def admin_login():
                 else:
                     set_trip_state(t["trip_id"],'removed')
                     print(f"Trip ID-{travel_id} Removed successfully!")
+                    logger.info(f"Trip ID {travel_id} soft removed by Admin")
 
         elif run_admindashboard == "3":  # FIX HERE
             pass

@@ -3,14 +3,18 @@ from services.admin_service import admin_login
 from models.user import User
 from models.trips import Trips
 from models.admin import Admin
+from services.log_service import get_logger
+
+
 
 def main():
     User.load_users()
     Trips.load_trips()
     Admin.load_admins()
+    logger = get_logger()
 
     while True:
-        start = input("\n1. User Sign Up // Login - 2. Admin Login - 3. View Trips - 4. Exit : ")
+        start = input("\n1. User Sign Up // Login - 2. Admin Login - 3. View Trips - 4. Exit: ")
         if start == "1":
             User.load_users()
             Trips.load_trips()
@@ -27,7 +31,9 @@ def main():
             break
         else:
             print("Invalid input. Try again.")
+            logger.error("Invalid Input in main dashboard")
             break
+
 
 if __name__ == "__main__":
     main()

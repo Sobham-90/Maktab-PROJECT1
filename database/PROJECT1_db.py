@@ -30,6 +30,11 @@ create_table_tickets = """CREATE TABLE IF NOT EXISTS TICKETS (ticket_id SERIAL P
 cur.execute(create_table_tickets)
 # drop_users = """DROP TABLE TRIPS;"""
 conn.commit()
+
+create_table_logs = """CREATE TABLE IF NOT EXISTS LOGS (log_id SERIAL PRIMARY KEY, log_time TIMESTAMP NOT NULL DEFAULT NOW(), level VARCHAR(10), message TEXT);"""
+cur.execute(create_table_logs)
+# drop_users = """DROP TABLE TRIPS;"""
+conn.commit()
 # =========================================
 
 # Assign user_id to USERS
@@ -110,12 +115,7 @@ def buy_tickets (user_id,trip_id,seats_number):
 # =========================================
 
 
-# Remove Trips
-# def remove_trips(trip_id):
-# column_for_delete = """ALTER TABLE IF NOT EXISTS TRIPS ADD is_deleted BOOLEAN DEFAULT FALSE;"""
-# cur.execute(column_for_delete)
-# conn.commit()
-
+# Set Trips state (soft delete)
 def set_trip_state(trip_id,trip_state):
     cur.execute("UPDATE TRIPS SET trip_state = %s WHERE trip_id = %s",(trip_state,trip_id))
     conn.commit()

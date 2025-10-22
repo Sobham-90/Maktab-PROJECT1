@@ -3,8 +3,11 @@ from database.PROJECT1_db import *
 from models.user import User
 from models.trips import Trips
 from datetime import datetime
+import logging
+from services.log_service import get_logger
 
 
+logger = get_logger()
 def user_dashboard():
     while True:
         choice = input("\n1. Sign Up | 2. Login to Account | 3. Back : ")
@@ -27,11 +30,9 @@ def sign_up():
         print("Invalid Password (At least 8 characters with one Capital and special character). Try Again.")
         return
     if not check_sign_up (username,password):
-        try:
-            assign_user(username, password)
-            print("User Successfully Registered\n")
-        except Exception as e:
-            print(e,"Error! User Already Signed Up!")
+        assign_user(username, password)
+        print("User Successfully Registered\n")
+        logger.info(f"User {username} Signed Up")
     else:
         print("User Already Signed Up!")
     
@@ -44,6 +45,7 @@ def login():
         print("Invalid Username or Password")
         return
     print(f"\nWelcome {username} to your Account!\n")
+    logger.info(f"User {username} Logged in")
     while True:
         run_userdashboard = input("\n1.Add Balance - 2.show Balance - 3.Travel History - 4.Show Available Trips - 5.Buy Ticket - 6.Return Ticket - 7.Change Password - 8.Back to Main Menu : ")
         user_data = User.return_user(username)
@@ -55,6 +57,7 @@ def login():
                 user_data["balance"] += add_balance
                 update_balance(username, user_data['balance'])
                 print(f"Your balance raised {add_balance}\nYour current balance {user_data["balance"]}")
+                logger.info(f"User {username} balance raised by {add_balance}")
             except ValueError as e:
                 print(e, "Invalid input.Please insert numerical value to raise balance")
 
@@ -108,6 +111,7 @@ def login():
                                         user_data["balance"] -= t['price']
                                         update_balance(username, user_data["balance"])
                                         print(f"You Bought Seats Num {choice_seats} of Trip ID {t['trip_id']} by {t['price']}. Your current Balance = {user_data['balance']}.")
+                                        logger.info(f"User {username} bought seats {choice_seats} of Trip ID {t['trip_id']}")
 
                                         t["available_seats"].remove(choice_seats)
                                         update_seats(t["trip_id"], choice_seats)
@@ -126,6 +130,7 @@ def login():
 
                             elif finalize_ticket == "n":
                                 print("Buy Ticket has been Cancelled!")
+                                logger.info(f"Buy Ticket of Trip ID {t['trip_id']} has been Cancelled by User {username}")
                             else:
                                 print("Invalid input.Try again.")
                                 continue
@@ -139,7 +144,7 @@ def login():
                         continue
 
         elif run_userdashboard == "6":  # Cancel a Ticket
-            print("Reserved Tickets:\n")
+            print("Bought Tickets:\n")
             bought_tickets = load_user_tickets(user_id)
             for i,tickets in enumerate(bought_tickets,start=1):
                 if tickets[7] == "Bought":
@@ -155,6 +160,7 @@ def login():
                                 canceling_time = datetime.now()
                                 if ticket[3] > canceling_time:
                                     set_ticket_state (user_id, ticket[8], "returned")
+                                    logger.info(f"User {username} Returned Ticket of Trip ID {tickets[8]}")
                                     for t in Trips.trips:
                                         if t["trip_id"] == ticket[8]:
                                             t["available_seats"].append(tickets[6])
@@ -162,7 +168,9 @@ def login():
 
                                     user_data["balance"] += t['price'] * 0.8
                                     update_balance(username, user_data["balance"])
+                                    logger.info(f"{t['price'] * 0.8} Returned to User {username} wallet")
                                     t["venue"] -= t['price'] * 0.8
+                                    logger.info(f"{t['price'] * 0.8} Decreased from Trip ID {t["trip_id"]} venues")
                                     venue_add(t["trip_id"], t["venue"])
                                 else:
                                     print(f"Time of canceling has been passed!")
@@ -172,15 +180,22 @@ def login():
     
 
         elif run_userdashboard == "7":  # Change Password by User
-            new_password = input("Insert new password: ")
-            if password_validator(new_password):
-                user_data["password"] = new_password
-                update_password(username, user_data["password"])
-                print(f"Your password successfully changed to {user_data['password']}.")
+            check_password = input("Insert old password: ")
+            if check_password == password:
+                new_password = input("Insert new password: ")
+                if password_validator(new_password):
+                    user_data["password"] = new_password
+                    update_password(username, user_data["password"])
+                    print(f"Your password successfully changed to {user_data['password'][:3]+(len(user_data['password'])-3)*"*"}")
+                    logger.info(f"User {username} changed log in password")
+                else:
+                    print("Invalid password.Please try again.")
+                    continue
             else:
-                print("Invalid password.Please try again.")
+                print("Wrong password.Please try again.")
                 continue
-
+                
+                
         elif run_userdashboard == "8":
             return
 
