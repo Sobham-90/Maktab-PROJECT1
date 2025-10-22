@@ -1,10 +1,10 @@
+from services.os import clear_console
 from services.user_service import user_dashboard
 from services.admin_service import admin_login
 from models.user import User
 from models.trips import Trips
 from models.admin import Admin
 from services.log_service import get_logger
-
 
 
 def main():
@@ -28,6 +28,7 @@ def main():
             Trips.display_all_trips()
         elif start == "4":
             print("Goodbye!")
+            clear_console()
             break
         else:
             print("Invalid input. Try again.")

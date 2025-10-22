@@ -1,3 +1,4 @@
+from services.os import clear_console
 from validation.validator import username_validator, password_validator
 from database.PROJECT1_db import *
 from models.user import User
@@ -16,6 +17,7 @@ def user_dashboard():
         elif choice == "2":
             login()
         elif choice == "3":
+            clear_console()
             break
         else:
             print("Invalid Input!")

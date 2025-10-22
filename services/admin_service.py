@@ -1,3 +1,4 @@
+from services.os import clear_console
 from database.PROJECT1_db import *
 from models.trips import Trips
 from datetime import datetime
@@ -84,6 +85,7 @@ def admin_login():
             print(User.users)
 
         elif run_admindashboard == "6":
+            clear_console()
             return
 
         else:
