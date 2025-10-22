@@ -199,6 +199,7 @@ def login():
                 
                 
         elif run_userdashboard == "8":
+            clear_console()
             return
 
         else:
