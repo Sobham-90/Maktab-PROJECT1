@@ -1,3 +1,4 @@
+import argparse
 from services.os import clear_console
 from services.user_service import user_dashboard
 from services.admin_service import admin_login
@@ -6,12 +7,34 @@ from models.trips import Trips
 from models.admin import Admin
 from services.log_service import get_logger
 
+logger = get_logger()
 
-def main():
+parser = argparse.ArgumentParser(description="Ticket Booking System Main CLI")
+parser.add_argument('--mode',choices=['user', 'admin', 'view_trips', 'exit'],
+    help='Select mode: user dashboard, admin dashboard, view trips, or exit'
+)
+parser.add_argument('--username', type=str, help='Username for user/admin login')
+parser.add_argument('--password', type=str, help='Password for user/admin login')
+args = parser.parse_args()
+
+
+def main(): #Load Datas
     User.load_users()
     Trips.load_trips()
     Admin.load_admins()
-    logger = get_logger()
+
+    if args.mode:
+        if args.mode == "user":
+            user_dashboard(args)  
+        elif args.mode == "admin":
+            admin_login(args)  
+        elif args.mode == "view_trips":
+            Trips.display_all_trips()
+        elif args.mode == "exit":
+            print("Good Bye!")
+            clear_console()
+        
+
 
     while True:
         start = input("\n1. User Sign Up // Login - 2. Admin Login - 3. View Trips - 4. Exit: ")
@@ -33,8 +56,8 @@ def main():
         else:
             print("Invalid input. Try again.")
             logger.error("Invalid Input in main dashboard")
+            clear_console()
             break
-
 
 if __name__ == "__main__":
     main()
