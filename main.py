@@ -23,6 +23,7 @@ def main(): #Load Datas
     Trips.load_trips()
     Admin.load_admins()
 
+    # Args CLI
     if args.mode:
         if args.mode == "user":
             user_dashboard(args)  
@@ -33,9 +34,8 @@ def main(): #Load Datas
         elif args.mode == "exit":
             print("Good Bye!")
             clear_console()
-        
 
-
+    # Usual CLI
     while True:
         start = input("\n1. User Sign Up // Login - 2. Admin Login - 3. View Trips - 4. Exit: ")
         if start == "1":
